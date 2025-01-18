@@ -10,6 +10,7 @@ class User(db.Model):
     username = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(128), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
