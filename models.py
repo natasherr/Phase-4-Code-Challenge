@@ -11,13 +11,15 @@ class User(db.Model):
     email = db.Column(db.String(128), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(128), nullable=False)
+    title = db.Column(db.String(128), nullable=False, unique=True)
     author = db.Column(db.String(128), nullable=False)
     genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
 
 class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
