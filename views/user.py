@@ -20,6 +20,20 @@ def fetch_users():
         
     return jsonify(user_list)
 
+# FETCH USER BY ID
+@user_bp.route("/users/<int:user_id>")
+def fetch_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        return jsonify({
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_admin": user.is_admin
+            })
+    else:
+        return jsonify({"error": "User not found"})
+
 
 # ADD USERS
 @user_bp.route("/user/add", methods=["POST"])
@@ -42,3 +56,49 @@ def add_user():
         db.session.add(new_user)
         db.session.commit()
         return jsonify({"success": "User created successfully"})
+    
+
+# UPDATE USER
+@user_bp.route("/user/<int:user_id>", methods=["PATCH"])
+def update_user(user_id):
+    user = User.query.get(user_id)
+
+    if user:
+        data = request.get_json()
+        username = data['username']
+        email = data['email']
+        password = generate_password_hash(data['password'])
+
+        check_username = User.query.filter_by(username=username and id!= user_id).first()
+        check_email = User.query.filter_by(email=email and id!= user_id).first()
+
+        if check_username or check_email:
+            return jsonify({"error":"Username/email already exists"})
+        
+        else:
+            user.username = username
+            user.email = email
+            user.password = password
+
+            db.session.commit()
+            return jsonify({"success": "User updated successfully"})
+    
+    else:
+        return jsonify({"error": "User does not exist!!"})
+    
+
+
+# DELETE USER
+@user_bp.route("/user/<int:user_id>", methods=["DELETE"])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"success": "User deleted successfully"})
+    
+    else:
+        return jsonify({"error": "The user you are trying to delete does not exist!!"})
+    
+    
