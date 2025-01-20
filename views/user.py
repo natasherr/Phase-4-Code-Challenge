@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash
 from flask_mail import Message
 from app import mail,app
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 user_bp = Blueprint("user_bp", __name__)
 
@@ -71,19 +72,23 @@ def add_user():
             return jsonify({"error":f"Failed to send mail: {str(e)}"})
 
 
-# UPDATE USER
-@user_bp.route("/user/update/<int:user_id>", methods=["PATCH"])
-def update_user(user_id):
-    user = User.query.get(user_id)
+# Update User
+@user_bp.route("/users", methods=["PATCH"])
+@jwt_required()
+def update_user():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
 
     if user:
         data = request.get_json()
-        username = data['username']
-        email = data['email']
-        password = generate_password_hash(data['password'])
 
-        check_username = User.query.filter_by(username=username and id!= user_id).first()
-        check_email = User.query.filter_by(email=email and id!= user_id).first()
+        username = data.get['username', user.username]   
+        email = data.get['email', user.email]
+        password = generate_password_hash(data.get['password', user.password])
+        is_admin = (data.get['is_admin', user.is_admin])
+
+        check_username = User.query.filter_by(username=username and id!= user.id).first()
+        check_email = User.query.filter_by(email=email and id!= user.id).first()
 
         if check_username or check_email:
             return jsonify({"error":"Username/email already exists"})
@@ -94,17 +99,20 @@ def update_user(user_id):
             user.password = password
 
             db.session.commit()
-            return jsonify({"success": "User updated successfully"})
+            return jsonify({"success": "Profile updated successfully"})
     
     else:
         return jsonify({"error": "User does not exist!!"})
     
+    
 
 
 # DELETE USER
-@user_bp.route("/user/delete_account/<int:user_id>", methods=["DELETE"])
-def delete_user(user_id):
-    user = User.query.get(user_id)
+@user_bp.route("/user", methods=["DELETE"])
+@jwt_required()
+def delete_user():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
 
     if user:
         db.session.delete(user)
