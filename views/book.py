@@ -65,4 +65,38 @@ def update_book(book_id):
     data = request.get_json()
     book = Book.query.get(book_id)
 
+    if book:
+        title = data.get('title', book.title)
+        author = data.get('author', book.author)
+        genre_id = data.get('genre_id', book.genre_id)
+        user_id = data.get('user_id', book.user_id)
+
+        check_book_id = Book.query.get(book_id)
+        if not check_book_id:
+            return jsonify({"error": "Book not found"})
+
+        else:
+            book.title = title
+            book.author = author
+            book.genre_id = genre_id
+            book.user_id = user_id
+
+            db.session.commit()
+            return jsonify({"success": "Book updated successfully!!!"})
+
+    else:
+        return jsonify({"error": "Book not found"})
+
+
+# DELETE BOOK
+@book_bp.route("/books/<int:book_id>", methods=["DELETE"])
+def delete_book(book_id):
+    book = Book.query.filter_by(id = book_id, user_id = current_user.id).first()
+
+    if not book:
+        return jsonify({"error": "Book has not been found"})
+
+    db.session.delete(book)
+    db.session.commit()
+    return jsonify({"success": "Book deleted successfully!!!"})
 
