@@ -34,7 +34,6 @@ def fetch_user(user_id):
     else:
         return jsonify({"error": "User not found"})
 
-
 # ADD USERS
 @user_bp.route("/user/add", methods=["POST"])
 def add_user():
@@ -59,7 +58,7 @@ def add_user():
     
 
 # UPDATE USER
-@user_bp.route("/user/<int:user_id>", methods=["PATCH"])
+@user_bp.route("/user/update/<int:user_id>", methods=["PATCH"])
 def update_user(user_id):
     user = User.query.get(user_id)
 
@@ -89,7 +88,7 @@ def update_user(user_id):
 
 
 # DELETE USER
-@user_bp.route("/user/<int:user_id>", methods=["DELETE"])
+@user_bp.route("/user/delete_account/<int:user_id>", methods=["DELETE"])
 def delete_user(user_id):
     user = User.query.get(user_id)
 
