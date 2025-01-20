@@ -1,6 +1,8 @@
 from models import db, User
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash
+from flask_mail import Message
+from app import mail,app
 
 user_bp = Blueprint("user_bp", __name__)
 
@@ -54,8 +56,20 @@ def add_user():
         new_user = User(username=username, email=email, password=password, is_admin=is_admin)
         db.session.add(new_user)
         db.session.commit()
-        return jsonify({"success": "User created successfully"})
-    
+
+        try:
+            msg = Message(
+                subject="Test Mail",
+                sender=app.config["MAIL_DEFAULT_SENDER"],
+                recipients=[email],
+                body="This is a test mail sent from a Flask Application."
+            )
+            mail.send(msg)
+            return jsonify({"success": "User created successfully"})
+
+        except Exception as e:
+            return jsonify({"error":f"Failed to send mail: {str(e)}"})
+
 
 # UPDATE USER
 @user_bp.route("/user/update/<int:user_id>", methods=["PATCH"])
@@ -99,5 +113,4 @@ def delete_user(user_id):
     
     else:
         return jsonify({"error": "The user you are trying to delete does not exist!!"})
-    
     

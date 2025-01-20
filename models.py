@@ -12,6 +12,8 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     
+    # posts = db.relationship('Post', backref='author', lazy=True)
+    
 
 class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -20,10 +22,14 @@ class Book(db.Model):
     genre_id = db.Column(db.Integer, db.ForeignKey('genre.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
+    # genre = db.relationship('Genre', backref='books', lazy=True)
+    
 
 class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False)
+    
+    # books = db.relationship('Book', backref='genre', lazy=True)
 
 
 class TokenBlocklist(db.Model):
