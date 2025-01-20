@@ -117,7 +117,7 @@ def delete_user():
     if user:
         db.session.delete(user)
         db.session.commit()
-        return jsonify({"success": "User deleted successfully"})
+        return jsonify({"success": "Account deleted successfully"})
     
     else:
         return jsonify({"error": "The user you are trying to delete does not exist!!"})
