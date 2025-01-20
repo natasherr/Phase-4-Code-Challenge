@@ -1,12 +1,15 @@
 from models import db, Book, Genre, User
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 book_bp = Blueprint("book_bp", __name__)
 
 # ADD BOOK
 @book_bp.route("/books", methods=["POST"])
+@jwt_required()
 def add_book():
     data = request.get_json()
+    current_user_id = get_jwt_identity()
 
     title = data['title']
     author = data['author']
@@ -20,7 +23,7 @@ def add_book():
         return jsonify({"error": "Invalid genre or user id"})
     
     else:
-        new_book = Book(title=title, author=author, genre_id=genre_id, user_id=user_id)
+        new_book = Book(title=title, author=author, genre_id=genre_id, user_id=current_user_id)
         db.session.add(new_book)
         db.session.commit()
         return jsonify({"success": "Book added successfully"})
@@ -28,8 +31,10 @@ def add_book():
 
 # FETCH ALL BOOKS
 @book_bp.route("/books")
+@jwt_required()
 def fetch_books():
-    books = Book.query.all()
+    current_user_id = get_jwt_identity()
+    books = Book.query.filter_by(user_id = current_user_id)
     books_list=[]
 
     for book in books:
@@ -44,8 +49,10 @@ def fetch_books():
 
 # FETCH BOOK BY ID
 @book_bp.route("/books/<int:book_id>")
+@jwt_required()
 def fetch_book(book_id):
-    book = Book.query.get(book_id)
+    current_user_id = get_jwt_identity()
+    book = Book.query.filter_by(id = book_id, user_id = current_user_id).first()
 
     if book:
         return jsonify({
@@ -61,7 +68,9 @@ def fetch_book(book_id):
 
 # UPDATE BOOK   
 @book_bp.route("/books/<int:book_id>", methods=["PATCH"])
+@jwt_required()
 def update_book(book_id):
+    current_user_id = get_jwt_identity()
     data = request.get_json()
     book = Book.query.get(book_id)
 
@@ -90,8 +99,10 @@ def update_book(book_id):
 
 # DELETE BOOK
 @book_bp.route("/books/<int:book_id>", methods=["DELETE"])
+@jwt_required()
 def delete_book(book_id):
-    book = Book.query.filter_by(id = book_id, user_id = current_user.id).first()
+    current_user_id = get_jwt_identity()
+    book = Book.query.filter_by(id = book_id, user_id = current_user_id).first()
 
     if not book:
         return jsonify({"error": "Book has not been found"})
