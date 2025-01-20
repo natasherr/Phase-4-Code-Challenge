@@ -16,7 +16,7 @@ auth_bp = Blueprint("auth_bp", __name__)
 def login():
     data = request.get_json()
     email = data['email']
-    password = data['email']
+    password = data['password']
 
     user = User.query.filter_by(email=email).first()
 
