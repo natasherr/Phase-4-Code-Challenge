@@ -82,10 +82,10 @@ def update_user():
     if user:
         data = request.get_json()
 
-        username = data.get['username', user.username]   
-        email = data.get['email', user.email]
-        password = generate_password_hash(data.get['password', user.password])
-        is_admin = (data.get['is_admin', user.is_admin])
+        username = data.get('username', user.username)   
+        email = data.get('email', user.email)
+        password = generate_password_hash(data.get('password', user.password))
+        is_admin = data.get('is_admin', user.is_admin)
 
         check_username = User.query.filter_by(username=username and id!= user.id).first()
         check_email = User.query.filter_by(email=email and id!= user.id).first()
@@ -108,7 +108,7 @@ def update_user():
 
 
 # DELETE USER
-@user_bp.route("/user", methods=["DELETE"])
+@user_bp.route("/users", methods=["DELETE"])
 @jwt_required()
 def delete_user():
     current_user_id = get_jwt_identity()
@@ -121,4 +121,3 @@ def delete_user():
     
     else:
         return jsonify({"error": "The user you are trying to delete does not exist!!"})
-    
